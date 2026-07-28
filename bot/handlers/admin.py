@@ -1,3 +1,4 @@
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
@@ -5,7 +6,6 @@ async def admin_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    # TODO: چک کردن اینکه کاربر ادمین است یا نه
     admin_ids = [int(os.getenv("ADMIN_ID", "0"))]
     if update.effective_user.id not in admin_ids:
         await query.edit_message_text("⛔ شما دسترسی به پنل مدیریت ندارید.")
