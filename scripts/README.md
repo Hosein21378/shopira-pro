@@ -14,3 +14,18 @@
 
 ```bash
 chmod +x scripts/*.sh
+```
+
+## بکاپ‌گیری دستی
+
+```bash
+./scripts/backup.sh
+```
+
+بکاپ‌ها در پوشه `backups/` ذخیره می‌شوند.
+
+## بازگردانی
+
+```bash
+./scripts/restore.sh backups/shopira_backup_xxxx.sql.gz
+```
