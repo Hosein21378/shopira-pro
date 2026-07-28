@@ -32,8 +32,10 @@ def main():
     application.add_handler(CallbackQueryHandler(payment.payment_menu, pattern="^payment$"))
     application.add_handler(CallbackQueryHandler(support.support_menu, pattern="^support$"))
     application.add_handler(CallbackQueryHandler(admin.admin_menu, pattern="^admin$"))
+    
+    # دکمه بازگشت
+    application.add_handler(CallbackQueryHandler(start.start, pattern="^back_main$"))
 
-    # Message handler for support AI
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, support.handle_ai_message))
 
     application.add_error_handler(error_handler)
