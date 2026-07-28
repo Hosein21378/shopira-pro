@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>بخش مالی - Shopira Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-zinc-950 text-white">
+<div class="flex">
+    <!-- Sidebar -->
+    <div class="w-64 bg-zinc-900 min-h-screen p-4">
+        <div class="px-4 py-6">
+            <h2 class="text-xl font-bold mb-6">Shopira Pro</h2>
+            <nav class="space-y-2">
+                <a href="/" class="block px-4 py-2 rounded-xl hover:bg-zinc-800">داشبورد</a>
+                <a href="/users" class="block px-4 py-2 rounded-xl hover:bg-zinc-800">کاربران</a>
+                <a href="/products" class="block px-4 py-2 rounded-xl hover:bg-zinc-800">محصولات</a>
+                <a href="/financial" class="block px-4 py-2 bg-zinc-800 rounded-xl">بخش مالی</a>
+                <a href="/backups" class="block px-4 py-2 rounded-xl hover:bg-zinc-800">بکاپ</a>
+            </nav>
+        </div>
+    </div>
+
+    <div class="flex-1 p-8">
+        <h1 class="text-3xl font-bold mb-8">تنظیمات مالی</h1>
+
+        <div class="max-w-2xl bg-zinc-900 rounded-3xl p-8">
+            <form method="post" action="/financial" class="space-y-6">
+                <div>
+                    <label class="block text-sm mb-2">شماره کارت</label>
+                    <input type="text" name="card_number" placeholder="6104-XXXX-XXXX-XXXX" 
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3">
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-2">نام صاحب کارت</label>
+                    <input type="text" name="card_owner" placeholder="نام و نام خانوادگی" 
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3">
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-2">شماره شبا (اختیاری)</label>
+                    <input type="text" name="sheba" placeholder="IR..." 
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3">
+                </div>
+
+                <button type="submit" 
+                        class="bg-emerald-600 hover:bg-emerald-700 px-8 py-3 rounded-2xl font-medium">
+                    ذخیره اطلاعات
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2258ebbca29e346',t:'MTc4NTI1OTI1OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
