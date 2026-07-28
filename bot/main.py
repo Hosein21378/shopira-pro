@@ -16,8 +16,6 @@ logger = logging.getLogger(__name__)
 
 async def error_handler(update: Update, context):
     logger.error(msg="Exception while handling an update:", exc_info=context.error)
-    if update and update.effective_message:
-        await update.effective_message.reply_text("❌ خطایی رخ داد. لطفاً دوباره تلاش کنید.")
 
 def main():
     token = os.getenv("BOT_TOKEN")
@@ -26,18 +24,14 @@ def main():
 
     application = Application.builder().token(token).build()
 
-    # Handlers
     application.add_handler(CommandHandler("start", start.start))
     application.add_handler(CallbackQueryHandler(shop.shop_menu, pattern="^shop$"))
     application.add_handler(CallbackQueryHandler(payment.payment_menu, pattern="^payment$"))
     application.add_handler(CallbackQueryHandler(support.support_menu, pattern="^support$"))
     application.add_handler(CallbackQueryHandler(admin.admin_menu, pattern="^admin$"))
-    
-    # دکمه بازگشت
     application.add_handler(CallbackQueryHandler(start.start, pattern="^back_main$"))
 
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, support.handle_ai_message))
-
     application.add_error_handler(error_handler)
 
     logger.info("✅ Shopira Pro Bot is running...")
