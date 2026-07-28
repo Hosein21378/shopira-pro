@@ -3,6 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:16
+    container_name: shopira-db
     environment:
       POSTGRES_USER: shopira
       POSTGRES_PASSWORD: shopira123
@@ -11,14 +12,18 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
+    container_name: shopira-redis
     ports:
       - "6379:6379"
+    restart: unless-stopped
 
   bot:
     build: .
+    container_name: shopira-bot
     depends_on:
       - db
       - redis
@@ -28,6 +33,39 @@ services:
     volumes:
       - .:/app
     command: python -m bot.main
+    restart: unless-stopped
+
+  # صفحه وب اولیه (لندینگ)
+  web:
+    image: nginx:alpine
+    container_name: shopira-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./web:/usr/share/nginx/html:ro
+    depends_on:
+      - bot
+    restart: unless-stopped
+
+  # سرویس بکاپ خودکار (اختیاری اما خیلی مفید)
+  backup:
+    image: postgres:16
+    container_name: shopira-backup
+    depends_on:
+      - db
+    volumes:
+      - ./backups:/backups
+    environment:
+      PGPASSWORD: shopira123
+    entrypoint: |
+      /bin/sh -c "
+      while true; do
+        pg_dump -h db -U shopira shopira > /backups/shopira_$(date +%Y%m%d_%H%M%S).sql
+        echo 'Backup created at $(date)'
+        sleep 86400
+      done
+      "
+    restart: unless-stopped
 
 volumes:
   postgres_data:
