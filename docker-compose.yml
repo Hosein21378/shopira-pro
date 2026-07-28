@@ -35,7 +35,6 @@ services:
     command: python -m bot.main
     restart: unless-stopped
 
-  # صفحه وب اولیه (لندینگ)
   web:
     image: nginx:alpine
     container_name: shopira-web
@@ -47,7 +46,21 @@ services:
       - bot
     restart: unless-stopped
 
-  # سرویس بکاپ خودکار (اختیاری اما خیلی مفید)
+  admin_panel:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    container_name: shopira-admin
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://shopira:shopira123@db/shopira
+    restart: unless-stopped
+
   backup:
     image: postgres:16
     container_name: shopira-backup
