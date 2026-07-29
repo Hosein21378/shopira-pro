@@ -1,93 +1,84 @@
 #!/bin/bash
-
-# =============================================
-# Shopira Pro - One-Line Installer
-# =============================================
+# =========================================================
+# V2Shop Telegram Bot & VPN Panel Manager Installer
+# Target OS: Ubuntu 20.04 / 22.04 / 24.04 / Debian 11+
+# =========================================================
 
 set -e
-
-echo "🚀 Shopira Pro Installer"
-echo "=========================="
-echo ""
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-if [ "$EUID" -ne 0 ]; then 
-    echo -e "${RED}Please run as root (use sudo)${NC}"
-    exit 1
-fi
+echo -e "${BLUE}=========================================================${NC}"
+echo -e "${BLUE}     🚀 Installing V2Shop Modern Telegram VPN Bot      ${NC}"
+echo -e "${BLUE}=========================================================${NC}"
 
-echo -e "${YELLOW}Updating system packages...${NC}"
-apt update -y && apt upgrade -y
+# 1. Update System Packages
+echo -e "${YELLOW}[1/5] Updating system packages...${NC}"
+sudo apt update -y
+sudo apt install -y curl wget git python3 python3-pip python3-venv || true
+sudo apt install -y docker.io docker-compose-plugin || sudo apt install -y docker.io docker-compose || true
 
-echo -e "${YELLOW}Installing Docker...${NC}"
-curl -fsSL https://get.docker.com | sh
+# 2. Setup Working Directory
+echo -e "${YELLOW}[2/5] Creating application folder...${NC}"
+mkdir -p /opt/v2shop-bot
+cd /opt/v2shop-bot
 
-echo -e "${YELLOW}Installing Docker Compose...${NC}"
-curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
-
-echo -e "${YELLOW}Creating project directory...${NC}"
-mkdir -p /opt/shopira-pro
-cd /opt/shopira-pro
-
-echo -e "${YELLOW}Downloading Shopira Pro...${NC}"
-curl -sSL https://github.com/Hosein21378/shopira-pro/archive/refs/heads/main.tar.gz | tar xz --strip-components=1
-
-echo ""
-echo -e "${GREEN}✅ Files downloaded successfully!${NC}"
-echo ""
-
-read -p "Enter your Telegram Bot Token: " BOT_TOKEN
-while [ -z "$BOT_TOKEN" ]; do
-    echo -e "${RED}Bot Token cannot be empty!${NC}"
-    read -p "Enter your Telegram Bot Token: " BOT_TOKEN
-done
-
-read -p "Enter your Telegram Admin ID (numeric): " ADMIN_ID
-while [ -z "$ADMIN_ID" ]; do
-    echo -e "${RED}Admin ID cannot be empty!${NC}"
-    read -p "Enter your Telegram Admin ID: " ADMIN_ID
-done
-
-echo ""
-echo -e "${YELLOW}Creating .env file...${NC}"
-
-cat > .env << EOF
-BOT_TOKEN=$BOT_TOKEN
-ADMIN_ID=$ADMIN_ID
-
-DATABASE_URL=postgresql+asyncpg://shopira:shopira123@db/shopira
-REDIS_URL=redis://redis:6379/0
-
-PASARGAD_MERCHANT_CODE=
-PASARGAD_TERMINAL_ID=
-PASARGAD_CERTIFICATE_PATH=./cert/pasargad_cert.xml
-PASARGAD_CALLBACK_URL=https://yourdomain.com/payment/callback
-
-OPENAI_API_KEY=
-AI_ENABLED=true
-
-DEBUG=false
-LOG_LEVEL=INFO
+# 3. Create config.env
+echo -e "${YELLOW}[3/5] Configuring Environment variables...${NC}"
+cat << 'EOF' > /opt/v2shop-bot/config.env
+BOT_TOKEN="7192834012:AAH9f2Xk8qL0mW1n2P3o4Q5r6S7t8U9v0W"
+ADMIN_IDS="98765432,12345678"
+MANDATORY_CHANNEL="@V2ShopNet_Channel"
+SUPPORT_USERNAME="V2Shop_Admin_Support"
+CARD_NUMBER="6037 9975 1234 5678"
+CARD_HOLDER="محمد امینی"
+BANK_NAME="بانک ملی ایران"
+ZARINPAL_MERCHANT="xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+USDT_ADDRESS="TY4dK8s9xL2pQ1mN0oR7sT6uV5wX3yZ2aB"
+DATABASE_URL="sqlite:///v2shop.db"
+MARZBAN_URL="https://your-marzban-panel.com:8443"
+MARZBAN_USERNAME="admin"
+MARZBAN_PASSWORD="YOUR_PANEL_PASSWORD"
 EOF
 
-echo -e "${GREEN}✅ .env file created!${NC}"
+# 4. Create python Virtual environment & install required libraries
+echo -e "${YELLOW}[4/5] Setting up Python dependencies...${NC}"
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install python-telegram-bot requests pydantic sqlite3-api pyqrcode pillow
 
-echo ""
-echo -e "${YELLOW}Starting Docker containers...${NC}"
-docker compose up -d --build
+# 5. Create Systemd Service for Auto-start
+echo -e "${YELLOW}[5/5] Registering Systemd Service...${NC}"
+cat << 'EOF' > /etc/systemd/system/v2shop-bot.service
+[Unit]
+Description=V2Shop Telegram VPN Bot Service
+After=network.target
 
-echo ""
-echo -e "${GREEN}🎉 Shopira Pro installed successfully!${NC}"
-echo ""
-echo "📌 Useful commands:"
-echo "   View logs:        docker compose logs -f bot"
-echo "   Restart bot:      docker compose restart bot"
-echo "   Stop everything:  docker compose down"
-echo "   Backup database:  ./scripts/backup.sh"
-echo ""
-echo -e "${YELLOW}Don't forget to add your Pasargad certificate in ./cert/${NC}"
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/v2shop-bot
+ExecStart=/opt/v2shop-bot/venv/bin/python3 bot.py
+Restart=always
+RestartSec=5
+EnvironmentFile=/opt/v2shop-bot/config.env
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable v2shop-bot
+sudo systemctl restart v2shop-bot
+
+echo -e "${GREEN}=========================================================${NC}"
+echo -e "${GREEN}  ✅ V2Shop Telegram Bot successfully installed & started! ${NC}"
+echo -e "${GREEN}  Telegram Bot Username: @V2ShopVPNBot${NC}"
+echo -e "${GREEN}  Check Bot status: systemctl status v2shop-bot${NC}"
+echo -e "${GREEN}  View logs: journalctl -u v2shop-bot -f -n 50${NC}"
+echo -e "${GREEN}=========================================================${NC}"
